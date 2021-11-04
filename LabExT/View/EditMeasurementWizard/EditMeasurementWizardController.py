@@ -74,7 +74,7 @@ class EditMeasurementWizardController:
         elif stage_number == 3:
             self.view.s3_measurement_parameter_setup()
         elif stage_number == 4:
-            self.view.s4_final_save_buttons()
+            self.view.s5_final_save_buttons()
         else:
             raise ValueError("Unknown stage with number {:d}".format(stage_number))
 
@@ -212,6 +212,9 @@ class EditMeasurementWizardController:
                 self.logger.warning(msg)
 
         elif stage_number == 4:
+            pass
+
+        elif stage_number == 5:
             # save device reference and new measurement to the experiment's to_do_list and close wizard
             self._experiment.to_do_list.append(ToDo(self.model.s0_device, self.model.s1_measurement))
             self._experiment.update()

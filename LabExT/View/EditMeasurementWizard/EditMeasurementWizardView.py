@@ -99,7 +99,7 @@ class EditMeasurementWizardView:
         self.s3_measurement_param_table = None
 
         # list to hold the contents of the wizard
-        self.section_frames = [None, None, None, None, None]
+        self.section_frames = [None, None, None, None, None, None]
 
     def setup_main_window(self):
         """
@@ -290,11 +290,45 @@ class EditMeasurementWizardView:
 
         stage_frame.columnconfigure(0, weight=1)
 
-    def s4_final_save_buttons(self):
+    def s4_parameter_sweep_setup(self):
+        """
+        Setup stage 4: specify parameters to sweep with multiple measurements
+        """
+        stage = 4
+
+        stage_frame = CustomFrame(self._wizard_frame)
+        stage_frame.title = "Select Sweep Parameters"
+        self.section_frames[stage] = stage_frame
+        stage_frame.grid(row=stage, column=0, padx=5, pady=5, sticky='we')
+
+        # TODO: Change copy pasta below
+        self.s4_parameter_sweep_t = ParameterTable(stage_frame,
+                                                   store_callback=self.model.s1_measurement.store_new_param)
+        self.s3_measurement_param_table.title = 'Parameters of ' + str(self.model.s1_measurement.name)
+        self.s3_measurement_param_table.parameter_source = self.model.s1_measurement.get_default_parameter()
+        stage_frame.add_widget(self.s3_measurement_param_table, row=0, column=0, padx=5, pady=5, sticky='we')
+
+        stage_frame.continue_button = Button(stage_frame,
+                                             text="Continue",
+                                             command=lambda: self.controller.stage_completed(stage),
+                                             width=10)
+
+        # register keyboard shortcuts
+        self.wizard_window.bind("<Escape>", lambda event: self.controller.stage_start(stage - 1))
+        self.wizard_window.bind("<Return>",
+                                callback_if_btn_enabled(lambda event: self.controller.stage_completed(stage),
+                                                        stage_frame.continue_button))
+
+        # not using stage_frame.add_widget() to not automatically disable button!
+        stage_frame.continue_button.grid(row=0, column=1, padx=5, pady=5, sticky='e')
+
+        stage_frame.columnconfigure(0, weight=1)
+
+    def s5_final_save_buttons(self):
         """
         Setup stage 4:
         """
-        stage = 4
+        stage = 5
 
         stage_frame = CustomFrame(self._wizard_frame)
         stage_frame.title = "Save"

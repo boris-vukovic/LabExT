@@ -58,13 +58,19 @@ class ExperimentWizardHelperFrame (Frame):
 
         self.view.labels.append(choose_settings_label)
 
+        choose_sweep_label = Label(self, text='5. Choose parameter sweeps')
+        choose_sweep_label.configure(font='Helvetica 10')
+        choose_sweep_label.grid(row=7, column=0, sticky='w')
+
+        self.view.labels.append(choose_settings_label)
+
         ready_label = Label(self,
                             text='You are all set! Please click on \'Continue\' to close ' +
                                  'the ExperimentWizard and start your measurements ' +
                                  'by clicking on the \'Run\' button.'
                             )
         ready_label.configure(font='Helvetica 10')
-        ready_label.grid(row=7, column=0)
+        ready_label.grid(row=8, column=0)
 
         self.view.labels.append(ready_label)
 
@@ -72,7 +78,7 @@ class ExperimentWizardHelperFrame (Frame):
                                       text='Continue',
                                       state='disabled',
                                       command=self.controller.finish_wizard)
-        self.continue_button.grid(row=8, column=0, sticky='e')
+        self.continue_button.grid(row=9, column=0, sticky='e')
 
 
 class ExperimentWizardMainWindow (Toplevel):
