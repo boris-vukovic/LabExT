@@ -295,17 +295,20 @@ class ParameterTable(CustomFrame):
 
     def writeback_meas_values(self, event=None):
         """
-        Gets called on destroy. Writes the values, if coming from meas param, back to the field.
+        Writes the values, if coming from meas param, back to the field.
         """
         if self.set_from_meas_param and self._parameter_source is not None:
             if self.store_callback is not None:
                 self.store_callback(self.to_meas_param())
 
     def destroy(self):
+        self.check_and_store_measurement_params()
+        CustomFrame.destroy(self)
+
+    def check_and_store_measurement_params(self):
         try:
             self.check_parameter_validity()
             self.writeback_meas_values()
         except ValueError as e:
             logging.getLogger().warning(
                 "Encountered invalid parameter values! Did not save changed parameters! Full Errors:\n" + str(e))
-        CustomFrame.destroy(self)
