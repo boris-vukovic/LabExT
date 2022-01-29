@@ -15,7 +15,10 @@ from LabExT.View.Controls.InstrumentSelector import InstrumentSelector
 from LabExT.View.Controls.KeyboardShortcutButtonPress import callback_if_btn_enabled
 from LabExT.View.Controls.ParameterTable import ParameterTable
 from LabExT.View.Controls.ScrollableFrame import ScrollableFrame
+from LabExT.View.Controls.SingleSweepParameterFrame import SingleSweepParameterFrame
 from LabExT.View.TooltipMenu import CreateToolTip
+
+from LabExT.Measurements.MeasAPI import MeasParamFloat
 
 
 class WizardWindow(Toplevel):
@@ -97,6 +100,7 @@ class EditMeasurementWizardView:
         self.meas_nr_dropdown = None
         self.s2_instrument_selector = None
         self.s3_measurement_param_table = None
+        self.s4_parameter_sweep_frame = None
 
         # list to hold the contents of the wizard
         self.section_frames = [None, None, None, None, None, None]
@@ -301,12 +305,13 @@ class EditMeasurementWizardView:
         self.section_frames[stage] = stage_frame
         stage_frame.grid(row=stage, column=0, padx=5, pady=5, sticky='we')
 
-        # TODO: Change copy pasta below
-        self.s4_parameter_sweep_t = ParameterTable(stage_frame,
-                                                   store_callback=self.model.s1_measurement.store_new_param)
-        self.s3_measurement_param_table.title = 'Parameters of ' + str(self.model.s1_measurement.name)
-        self.s3_measurement_param_table.parameter_source = self.model.s1_measurement.get_default_parameter()
-        stage_frame.add_widget(self.s3_measurement_param_table, row=0, column=0, padx=5, pady=5, sticky='we')
+        self.s4_parameter_sweep_frame = SingleSweepParameterFrame(stage_frame)
+        self.s4_parameter_sweep_frame.title = 'Sweep Settings'
+        stage_frame.add_widget(self.s4_parameter_sweep_frame, row=0, column=0, padx=5, pady=5, sticky='we')
+
+        # Extract all sweepable parameters from list
+        sweepable_parameters = [k for k, v in self.model.s1_measurement.parameters.items() if type(v) == MeasParamFloat]
+        self.s4_parameter_sweep_frame.sweep_parameter_options = sweepable_parameters
 
         stage_frame.continue_button = Button(stage_frame,
                                              text="Continue",

@@ -19,8 +19,8 @@ from LabExT.View.EditMeasurementWizard.EditMeasurementWizardView import EditMeas
 
 class EditMeasurementWizardController:
     """
-    Controller Class for the EditMeasurementWizard. Gets instanceiated and used from the main window.
-    Sets up model and view classes, contains controll logic, callback functions for the EditMeasurementWizard
+    Controller Class for the EditMeasurementWizard. Gets instantiated and used from the main window.
+    Sets up model and view classes, contains control logic, callback functions for the EditMeasurementWizard
     """
 
     def __init__(self, parent, experiment_manager):
@@ -74,6 +74,8 @@ class EditMeasurementWizardController:
         elif stage_number == 3:
             self.view.s3_measurement_parameter_setup()
         elif stage_number == 4:
+            self.view.s4_parameter_sweep_setup()
+        elif stage_number == 5:
             self.view.s5_final_save_buttons()
         else:
             raise ValueError("Unknown stage with number {:d}".format(stage_number))
@@ -127,6 +129,10 @@ class EditMeasurementWizardController:
             if self.model.s1_measurement is not None:
                 self.view.s3_measurement_param_table.deserialize(self.model.s1_measurement.settings_path)
         elif stage_number == 4:
+            # if available: define a pre-selected sweep from save file
+            # TODO: Implement
+            pass
+        elif stage_number == 5:
             # there is nothing to load or save for the save button stage
             pass
         else:
@@ -204,6 +210,10 @@ class EditMeasurementWizardController:
             except ValueError as e:
                 self.show_error('Value Error', 'Invalid data was entered:\n' + str(e))
                 return
+
+            # this will update the measurement parameters
+            self.view.s3_measurement_param_table.check_and_store_measurement_params()
+
             # we serialize the user settings to file for future use
             if self.model.s1_measurement is not None:
                 self.view.s3_measurement_param_table.serialize(self.model.s1_measurement.settings_path)
@@ -212,7 +222,8 @@ class EditMeasurementWizardController:
                 self.logger.warning(msg)
 
         elif stage_number == 4:
-            pass
+            if self.model.s4_sweeps is not None:
+                pass
 
         elif stage_number == 5:
             # save device reference and new measurement to the experiment's to_do_list and close wizard

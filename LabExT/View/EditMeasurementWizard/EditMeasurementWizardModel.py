@@ -40,6 +40,7 @@ class EditMeasurementWizardModel:
         self.s0_device = None
         self.s1_measurement = None
         self.s1_available_instruments = None
+        self.s4_sweeps = None
 
     @property
     def saved_s0_device_id(self):
@@ -88,6 +89,14 @@ class EditMeasurementWizardModel:
     @s1_available_instruments.setter
     def s1_available_instruments(self, new_instr):
         self._s1_available_instruments = new_instr
+
+    @property
+    def s4_sweeps(self):
+        return self._s4_sweeps
+
+    @s4_sweeps.setter
+    def s4_sweeps(self, new_sweep):
+        self._s4_sweeps = new_sweep
 
     def set_view(self, view):
         self._view = view
