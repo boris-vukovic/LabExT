@@ -48,8 +48,13 @@ class SingleSweepParameterFrame(CustomFrame):
         if self.sweep_parameter is None:
             return
         """
+        if self.get_selected_parameter() == '-':
+            entry_state = DISABLED
+        else:
+            entry_state = NORMAL
+
         # Select Measurement Parameter
-        menu = self.add_widget(
+        self.menu = self.add_widget(
             OptionMenu(self, self._selected_parameter, *self._sweep_parameter_options_list),
             row=1, column=0, padx=2, pady=2, sticky='we')
         self.rowconfigure(0, weight=1)
@@ -67,7 +72,7 @@ class SingleSweepParameterFrame(CustomFrame):
         self.add_widget(Entry(self,
                               textvariable=self._start,
                               width=self._customwidth,
-                              state=DISABLED),
+                              state=entry_state),
                         row=0,
                         column=2,
                         padx=5,
@@ -86,7 +91,7 @@ class SingleSweepParameterFrame(CustomFrame):
         self.add_widget(Entry(self,
                               textvariable=self._stop,
                               width=self._customwidth,
-                              state=DISABLED),
+                              state=entry_state),
                         row=1,
                         column=2,
                         padx=5,
@@ -105,7 +110,7 @@ class SingleSweepParameterFrame(CustomFrame):
         self.add_widget(Entry(self,
                               textvariable=self._number_of_values,
                               width=self._customwidth,
-                              state=DISABLED),
+                              state=entry_state),
                         row=2,
                         column=2,
                         padx=5,
@@ -122,6 +127,16 @@ class SingleSweepParameterFrame(CustomFrame):
         """Sets the parameter."""
         self._sweep_parameter_options_list = ['-'] + parameter_list
         self.__setup__()
+
+    def set_standard_empty_sweep_parameters(self):
+        """Sets standard parameters when a new sweep is created"""
+        self._selected_parameter.set('-')
+        self._start.set('0.0')
+        self._stop.set('1.0')
+        self._number_of_values.set('10')
+
+    def get_selected_parameter(self):
+        return self._selected_parameter.get()
 
     def on_selected_parameter_changed(self, *args):
         """Called when the value of the selected parameter in the options menu is selected"""
@@ -143,11 +158,50 @@ class SingleSweepParameterFrame(CustomFrame):
                 else:
                     widget.configure(state=DISABLED)
 
+    def write_back_sweep_values(self):
+        self.store_callback(self._selected_parameter.get(),
+                            self._start.get(),
+                            self._stop.get(),
+                            self._number_of_values.get())
+
     def destroy(self):
         try:
-            self.check_parameter_validity()
-            self.writeback_meas_values()
+            self.write_back_sweep_values()
         except ValueError as e:
             logging.getLogger().warning(
                 "Encountered invalid parameter values! Did not save changed parameters! Full Errors:\n" + str(e))
         CustomFrame.destroy(self)
+
+    def make_json_able(self):
+        data = {'sweep_parameter_name': self._selected_parameter.get(),
+                'sweep_start': self._start.get(),
+                'sweep_stop': self._stop.get(),
+                'sweep_number_of_values': self._number_of_values.get()}
+        return data
+
+    def serialize(self, file_name):
+        data = self.make_json_able()
+        file_path = get_configuration_file_path(file_name)
+        with open(file_path, 'w') as json_file:
+            json_file.write(json.dumps(data))
+        return True
+
+    def deserialize(self, file_name):
+        file_path = get_configuration_file_path(file_name)
+        if not os.path.isfile(file_path):
+            return False
+        with open(file_path, 'r') as json_file:
+            data = json.loads(json_file.read())
+
+            try:
+                self._selected_parameter.set(data['sweep_parameter_name'])
+                self._start.set(data['sweep_start'])
+                self._stop.set(data['sweep_stop'])
+                self._number_of_values.set(data['sweep_number_of_values'])
+            except KeyError as e:
+                logging.getLogger().warning(
+                    "Could not deserialize sweep parameters because keywords not found in settings file:\n" + str(e))
+                self.set_standard_empty_sweep_parameters()
+
+        self.__setup__()
+        return True

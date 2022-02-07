@@ -305,7 +305,9 @@ class EditMeasurementWizardView:
         self.section_frames[stage] = stage_frame
         stage_frame.grid(row=stage, column=0, padx=5, pady=5, sticky='we')
 
-        self.s4_parameter_sweep_frame = SingleSweepParameterFrame(stage_frame)
+        self.s4_parameter_sweep_frame = SingleSweepParameterFrame(stage_frame,
+                                                                  store_callback=self.model.s4_sweeps.set_sweep_parameters)
+
         self.s4_parameter_sweep_frame.title = 'Sweep Settings'
         stage_frame.add_widget(self.s4_parameter_sweep_frame, row=0, column=0, padx=5, pady=5, sticky='we')
 

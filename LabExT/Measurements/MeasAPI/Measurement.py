@@ -55,7 +55,7 @@ class Measurement:
         self._experiment = experiment
         self._experiment_manager = experiment_manager
 
-        """
+        self.subclass_ = """
         Measurement attributes, to be overridden by subclass.
         --> FILL THESE PARAMETERS IN YOUR SUBCLASS!
         """

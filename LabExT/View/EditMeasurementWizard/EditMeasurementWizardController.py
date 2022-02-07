@@ -15,6 +15,7 @@ from LabExT.Utils import get_visa_address, get_configuration_file_path
 from LabExT.View.Controls.InstrumentSelector import InstrumentRole
 from LabExT.View.EditMeasurementWizard.EditMeasurementWizardModel import EditMeasurementWizardModel
 from LabExT.View.EditMeasurementWizard.EditMeasurementWizardView import EditMeasurementWizardView
+from LabExT.Measurements.MeasAPI.MeasParamSweep import MeasParamSweep
 
 
 class EditMeasurementWizardController:
@@ -128,10 +129,19 @@ class EditMeasurementWizardController:
             self.model.s1_measurement.parameters = self.view.s3_measurement_param_table.to_meas_param()
             if self.model.s1_measurement is not None:
                 self.view.s3_measurement_param_table.deserialize(self.model.s1_measurement.settings_path)
+
+                # create sweep measurement object
+                self.model.s4_sweeps = MeasParamSweep(self.model.s1_measurement)
+
         elif stage_number == 4:
-            # if available: define a pre-selected sweep from save file
-            # TODO: Implement
-            pass
+            # retrieve sweep parameters from savefile
+            self.view.s4_parameter_sweep_frame.deserialize(self.model.s4_sweeps.settings_path)
+
+            # check if retrieved values are compatible with currently selected measurement
+            if not self.view.s4_parameter_sweep_frame.get_selected_parameter() in self.model.s1_measurement.parameters:
+                # measurement is not compatible, change values to default ones
+                self.view.s4_parameter_sweep_frame.set_standard_empty_sweep_parameters()
+
         elif stage_number == 5:
             # there is nothing to load or save for the save button stage
             pass
@@ -222,8 +232,12 @@ class EditMeasurementWizardController:
                 self.logger.warning(msg)
 
         elif stage_number == 4:
-            if self.model.s4_sweeps is not None:
-                pass
+            # we serialize the user settings to file for future use
+            if self.model.s1_measurement is not None:
+                self.view.s4_parameter_sweep_frame.serialize(self.model.s4_sweeps.settings_path)
+            else:
+                msg = "Measurement is not defined. Cannot serialize sweep parameters."
+                self.logger.warning(msg)
 
         elif stage_number == 5:
             # save device reference and new measurement to the experiment's to_do_list and close wizard
