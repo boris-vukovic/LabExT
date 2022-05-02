@@ -139,7 +139,7 @@ class SettingsWindow(ScrollableFrame):
             self._children.append(meas_frame)
             meas_frame.columnconfigure(0, weight=1)
 
-            self.logger.debug('Created new frame with title: %s',meas_frame.title)
+            self.logger.debug('Created new frame with title: %s', meas_frame.title)
 
             # add instruments and their names addresses
             for (inst_type, inst_name), inst_reference in measurement.instruments.items():
