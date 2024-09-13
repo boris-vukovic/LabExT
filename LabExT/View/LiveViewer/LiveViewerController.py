@@ -72,7 +72,13 @@ class LiveViewerController:
         Parameters
         ----------
         """
-        for _, card in self.model.cards:
+        # Forst close all PM cards before closing laser cards
+        pm_cards = [s for s in self.model.cards if not s[0] == 'Laser']
+        laser_cards = [s for s in self.model.cards if s[0] == 'Laser']
+        for _, card in pm_cards:
+            card.stop_instr()
+
+        for _, card in laser_cards:
             card.stop_instr()
 
     def update_settings(self, parameters: MEAS_PARAMS_TYPE):
